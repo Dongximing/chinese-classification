@@ -38,5 +38,5 @@ def main():
 
     train_dataset,validation_dataset,test_dataset = data_process(args.train_path,args.valid_path,args.text_path)
 
-if __name__ == "__mian__":
+if __name__ == "__main__":
     main()
