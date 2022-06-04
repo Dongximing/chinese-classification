@@ -16,7 +16,7 @@ def data_process(train_data_path, validation_data_path,test_data_path):
         train_lines = f.readlines()
     print(train_lines)
     for line in train_lines:
-        example, label = line.split(" ")
+        example, label = line.split(" \ ")
         training_example.append(example)
         training_label.append(label)
         print(example)
