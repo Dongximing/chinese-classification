@@ -23,7 +23,7 @@ def data_process(train_data_path, validation_data_path,test_data_path):
 
     print(training_example)
     print(training_label)
-
+    pass
 
 
 
