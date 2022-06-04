@@ -19,11 +19,27 @@ def data_process(train_data_path, validation_data_path,test_data_path):
     for line in train_lines:
         example, label = line.split("\t")
         training_example.append(example)
-        training_label.append(label)
+        training_label.append(int(label))
+    with open(validation_data_path) as f:
+        validation_lines = f.readlines()
 
-    print(training_example)
-    print(training_label)
-    pass
+
+    for line in validation_lines:
+        example, label = line.split("\t")
+        validation_example.append(example)
+        validation_label.append(int(label))
+    with open(test_data_path) as f:
+        test_lines = f.readlines()
+
+
+    for line in test_lines:
+        example, label = line.split("\t")
+        testing_example.append(example)
+        testing_label.append(int(label))
+
+    return testing_label,test_lines,testing_example
+
+
 
 
 
@@ -37,6 +53,7 @@ def main():
 
 
     train_dataset,validation_dataset,test_dataset = data_process(args.train_path,args.valid_path,args.text_path)
-
+    print(train_dataset)
+    print(test_dataset)
 if __name__ == "__main__":
     main()
