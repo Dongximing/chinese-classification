@@ -33,6 +33,7 @@ def main():
     parser.add_argument('--valid_path',type=str,default='/home/dongxx/projects/def-parimala/dongxx/chinese/Bert-Chinese-Text-Classification-Pytorch/THUCNews/data/dev.txt')
     parser.add_argument('--text_path',type=str,default='/home/dongxx/projects/def-parimala/dongxx/chinese/Bert-Chinese-Text-Classification-Pytorch/THUCNews/data/test.txt')
     args = parser.parse_args()
+    print("111")
 
 
     train_dataset,validation_dataset,test_dataset = data_process(args.train_path,args.valid_path,args.text_path)
