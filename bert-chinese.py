@@ -20,8 +20,7 @@ def data_process(train_data_path, validation_data_path,test_data_path):
         example, label = line.split("\t")
         training_example.append(example)
         training_label.append(label)
-        print(example)
-        print(label)
+
     print(training_example)
     print(training_label)
 
