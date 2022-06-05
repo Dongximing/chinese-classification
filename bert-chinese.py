@@ -102,8 +102,8 @@ def testing(criterion,validation,model,device):
         label = label.to(device)
         with torch.no_grad():
             output = model(ids=input_ids,mask=attention_mask,token_type_ids = token_type_ids)
-        loss,_ = criterion(output,label)
-        acc = categorical_accuracy(output,label)
+        loss = criterion(output,label)
+        acc,_= categorical_accuracy(output,label)
         test_acc+=loss.item()
         test_acc+=acc.item()
 
