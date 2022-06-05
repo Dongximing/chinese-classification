@@ -4,7 +4,7 @@ from transformers import BertTokenizer
 class bert_chineseDataset(torch.utils.data.Dataset):
     def __init__(self,text,label,tokenizer,max_len):
         self.text = text
-        self.label = label
+        self.labels = label
         self.tokenizer = tokenizer
         self.max_len = max_len
     def __len__(self):
