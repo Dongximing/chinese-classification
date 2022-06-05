@@ -85,7 +85,7 @@ def training(criterion,train,optimizer,model,scheduler,device):
         optimizer.zero_grad()
         output = model(ids=input_ids,mask=attention_mask,token_type_ids = token_type_ids)
         loss = criterion(output,label)
-        acc = categorical_accuracy(output,label)
+        acc,_ = categorical_accuracy(output,label)
         training_acc+= acc.item()
         training_loss+=loss.item()
         loss.backward()
@@ -103,7 +103,7 @@ def testing(criterion,validation,model,device):
         label = label.to(device)
         with torch.no_grad():
             output = model(ids=input_ids,mask=attention_mask,token_type_ids = token_type_ids)
-        loss = criterion(output,label)
+        loss,_ = criterion(output,label)
         acc = categorical_accuracy(output,label)
         test_acc+=loss.item()
         test_acc+=acc.item()
