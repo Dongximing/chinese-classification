@@ -56,11 +56,11 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
 def generate_batch(batch):
     for entry in batch:
         print(entry['input_ids'])
-    input_ids = [torch.Tensor(entry['input_ids']) for entry in batch]
+    input_ids = [torch.LongTensor(entry['input_ids']) for entry in batch]
     input_ids = pad_sequence(input_ids,batch_first=True)
-    attention_mask = [torch.Tensor(entry['attention_mask'] )for entry in batch]
+    attention_mask = [torch.LongTensor(entry['attention_mask'] )for entry in batch]
     attention_mask = pad_sequence(attention_mask,batch_first=True)
-    token_type_ids = [torch.Tensor(entry['token_type_ids'] )for entry in batch]
+    token_type_ids = [torch.LongTensor(entry['token_type_ids'] )for entry in batch]
     token_type_ids = pad_sequence(token_type_ids,batch_first=True)
     label = [entry['label'] for entry in batch]
     return input_ids,attention_mask,token_type_ids,label
