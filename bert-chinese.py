@@ -54,6 +54,8 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
 
 
 def generate_batch(batch):
+    for entry in batch:
+        print(entry['input_ids'])
     input_ids = [torch.Tensor(entry['input_ids'] for entry in batch)]
     input_ids = pad_sequence(input_ids,batch_first=True)
     attention_mask = [torch.Tensor(entry['attention_mask'] for entry in batch)]
