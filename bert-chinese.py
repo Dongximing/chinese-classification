@@ -158,7 +158,7 @@ def main():
     validation = DataLoader(validation_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False)
     test = DataLoader(train_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False)
     best_loss = float('inf')
-    for epoch in epochs:
+    for epoch in range (epochs):
         train_loss,train_acc = training(criterion,train,optimizer,bert_chinese_model,scheduler,device)
         valid_loss,valid_acc =testing(criterion,validation,bert_chinese_model,device)
         print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {train_acc * 100:.2f}%')
