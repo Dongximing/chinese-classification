@@ -6,8 +6,8 @@ class Bert_base(nn.Module):
         super(Bert_base,self).__init__()
         self.bert = bert
         self.fc = nn.Linear(hidden_state,num_class)
-    def forward(self,text,mask):
-        _,pooled = self.bert(text,mask)
+    def forward(self,text,mask, token_type_ids):
+        _,pooled = self.bert(text,mask,token_type_ids)
         out = self.fc(pooled)
         return out
 
