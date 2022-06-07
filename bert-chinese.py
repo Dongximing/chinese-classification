@@ -27,7 +27,7 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
 
     with open(train_data_path) as f:
         train_lines = f.readlines()
-    print(train_lines[0])
+
 
     for line in train_lines:
         example, label = line.split("\t")
@@ -146,6 +146,7 @@ def main():
         optimizer, num_warmup_steps=0, num_training_steps=int(20000/8*5)
     )
     config.seed_torch()
+
 
 
 
