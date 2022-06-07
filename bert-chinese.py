@@ -140,7 +140,6 @@ def main():
         },
     ]
 
-
     optimizer = AdamW(optimizer_parameters, lr=3e-5)
     scheduler = get_linear_schedule_with_warmup(
         optimizer, num_warmup_steps=0, num_training_steps=int(180000/128*10)
