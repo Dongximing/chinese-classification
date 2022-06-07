@@ -117,7 +117,7 @@ def main():
     args = parser.parse_args()
     tokenizer = BertTokenizer.from_pretrained('bert-base-chinese')
     max_length = 32
-    epochs = 1
+    epochs = 10
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     bert_chinese = BertModel.from_pretrained('bert-base-chinese')
     criterion = nn.CrossEntropyLoss()
