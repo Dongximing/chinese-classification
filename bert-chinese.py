@@ -40,8 +40,8 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
         training_example.append(example)
         training_label.append(int(label))
         number+=1
-    with open(validation_data_path) as f:
-        validation_lines = f.readlines()
+    with open(validation_data_path) as f1:
+        validation_lines = f1.readlines()
 
 
     for line in validation_lines:
