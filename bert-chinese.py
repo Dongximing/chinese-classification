@@ -21,7 +21,7 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
     training_example = []
     training_label = []
     validation_example = []
-    validation_label =[]
+    validation_label = []
     testing_example = []
     testing_label = []
     number = 0
@@ -42,7 +42,6 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
 
     for line in validation_lines:
         example, label = line.split("\t")
-        print(example)
         validation_example.append(example)
         validation_label.append(int(label))
 
