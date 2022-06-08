@@ -54,7 +54,7 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
         example, label = line.split("\t")
         testing_example.append(example)
         testing_label.append(int(label))
-        number+=1
+
 
     return bert_chinese_generation(training_example,training_label,validation_example,validation_label,testing_example,testing_label,tokenizer,max_length)
 
