@@ -43,7 +43,8 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
     with open(validation_data_path) as f1:
         validation_lines = f1.readlines()
 
-
+    print("-----")
+    print(validation_lines)
     for line in validation_lines:
         if number == 100:
             break
