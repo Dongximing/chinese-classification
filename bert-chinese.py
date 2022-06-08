@@ -34,7 +34,6 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
         if number == 100:
             break
         example, label = line.split("\t")
-        print(example) 
         training_example.append(example)
         training_label.append(int(label))
         number+=1
