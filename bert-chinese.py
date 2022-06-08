@@ -30,8 +30,6 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
 
         train_lines = f.readlines()
 
-
-
     for line in train_lines:
         if number == 100:
             break
@@ -43,23 +41,18 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
     with open(validation_data_path) as f1:
         validation_lines = f1.readlines()
 
-    print("-----")
-    print(validation_lines)
     for line in validation_lines:
-        if number == 100:
-            break
         example, label = line.split("\t")
         print(example)
         validation_example.append(example)
         validation_label.append(int(label))
-        number+=1
-    with open(test_data_path) as f:
-        test_lines = f.readlines()
+
+    with open(test_data_path) as f2:
+        test_lines = f2.readlines()
 
 
     for line in test_lines:
-        if number==100:
-            break
+
         example, label = line.split("\t")
         testing_example.append(example)
         testing_label.append(int(label))
