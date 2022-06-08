@@ -114,8 +114,8 @@ def testing(criterion,validation,model,device):
         acc,_= categorical_accuracy(output,label)
 
 
-        testing_acc+=loss.item()
-        testing_loss+=acc.item()
+        testing_loss+=loss.item()
+        testing_acc+=acc.item()
 
     return testing_loss/len(validation), testing_acc/len(validation)
 
