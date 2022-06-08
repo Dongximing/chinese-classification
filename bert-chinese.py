@@ -24,19 +24,19 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
     validation_label = []
     testing_example = []
     testing_label = []
-    number = 0
+
 
     with open(train_data_path) as f:
 
         train_lines = f.readlines()
 
     for line in train_lines:
-        if number == 100:
-            break
+
+
         example, label = line.split("\t")
         training_example.append(example)
         training_label.append(int(label))
-        number+=1
+
     with open(validation_data_path) as f1:
         validation_lines = f1.readlines()
 
@@ -106,16 +106,16 @@ def testing(criterion,validation,model,device):
         input_ids, attention_mask, token_type_ids, label = input_ids.to(device), attention_mask.to(
             device), token_type_ids.to(device), torch.LongTensor(label)
         label = label.to(device)
-        print(input_ids)
-        print(label)
+
+
         with torch.no_grad():
             output = model(ids=input_ids,mask=attention_mask,token_type_ids = token_type_ids)
         loss = criterion(output,label)
         acc,_= categorical_accuracy(output,label)
-        print(loss)
-        print(acc)
+
+
         testing_acc+=loss.item()
-        testing_acc+=acc.item()
+        testing_loss+=acc.item()
 
     return testing_loss/len(validation), testing_acc/len(validation)
 
