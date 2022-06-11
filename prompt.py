@@ -1,4 +1,4 @@
-import openprompt
+
 import os
 from openprompt.data_utils.text_classification_dataset import PROCESSORS
 
