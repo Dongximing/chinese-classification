@@ -8,4 +8,5 @@ dataset_path = '/home/dongxx/projects/def-parimala/dongxx/chinese/Bert-Chinese-T
 processor = DataProcessor(labels_path=dataset_path)
 #trainvalid_dataset = processor.get_train_examples(data_dir="/home/dongxx/projects/def-parimala/dongxx/chinese/Bert-Chinese-Text-Classification-Pytorch/THUCNews/data/prompt/train.txt")
 print(processor.get_num_labels())
-# print(trainvalid_dataset[0])
+trainvalid_dataset = processor.get_examples(data_dir=dataset_path)
+print(trainvalid_dataset[0])
