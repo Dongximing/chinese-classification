@@ -6,6 +6,6 @@ dataset_path = '/home/dongxx/projects/def-parimala/dongxx/chinese/Bert-Chinese-T
 
 
 processor = DataProcessor(labels_path=dataset_path)
-trainvalid_dataset = processor.get_train_examples(data_dir="/home/dongxx/projects/def-parimala/dongxx/chinese/Bert-Chinese-Text-Classification-Pytorch/THUCNews/data/prompt/train.txt")
+trainvalid_dataset = processor.get_examples(data_dir="/home/dongxx/projects/def-parimala/dongxx/chinese/Bert-Chinese-Text-Classification-Pytorch/THUCNews/data/prompt/train.txt")
 assert processor.get_num_labels() == 2
 print(trainvalid_dataset[0])
