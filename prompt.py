@@ -2,7 +2,7 @@
 import os
 from openprompt.data_utils.text_classification_dataset import PROCESSORS
 
-base_path = '/home/dongxx/projects/def-parimala/dongxx/chinese/Bert-Chinese-Text-Classification-Pytorch/THUCNews/data'
+base_path = '/home/dongxx/projects/def-parimala/dongxx/chinese/Bert-Chinese-Text-Classification-Pytorch/THUCNews/data/'
 dataset_name = 'prompt'
 dataset_path = os.path.join(base_path, dataset_name)
 processor = PROCESSORS[dataset_name.lower()]()
