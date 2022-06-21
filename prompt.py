@@ -124,7 +124,7 @@ def main():
          'weight_decay': 0.0}
     ]
     epochs = 10
-    batch_size = 32
+    batch_size = 128
     training_dataset = PromptDataLoader(dataset=train_dataset,max_seq_length=64,batch_size=batch_size,shuffle=True,tokenizer_wrapper_class=Wrapperclass,tokenizer=tokenizer,template=promptTemplate)
     validing_dataset = PromptDataLoader(dataset=validation_dataset,max_seq_length=64,batch_size=batch_size,shuffle=False,tokenizer_wrapper_class=Wrapperclass,tokenizer=tokenizer,template=promptTemplate)
     testing_dataset = PromptDataLoader(dataset=test_dataset,max_seq_length=64,batch_size=batch_size,shuffle=False,tokenizer_wrapper_class=Wrapperclass,tokenizer=tokenizer,template=promptTemplate)
@@ -146,6 +146,11 @@ def main():
         if valid_loss < best_loss:
             best_loss = valid_loss
             torch.save(prompt_model.state_dict(), config.bert_chinese_base_path)
+    print("testing")
+    prompt_model.load_state_dict(torch.load(config.bert_chinese_base_path))
+    test_loss, test_acc = testing(validation=testing_dataset, criterion=loss_function , model= prompt_model,device =device)
+    print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc * 100:.2f}%')
+    print("testing done")
 
 
 if __name__ == "__main__":
