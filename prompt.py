@@ -66,7 +66,7 @@ def training(criterion,train,optimizer,model,scheduler,device):
     training_acc = 0
     for i , inputs in tqdm(enumerate(train),total=len(train)):
 
-
+        inputs = inputs.to(device)
         optimizer.zero_grad()
         output = model(inputs)
         labels = inputs['label']
@@ -84,8 +84,7 @@ def testing(validation,device,criterion,model):
     testing_loss = 0
     testing_acc = 0
     for i, inputs in tqdm(enumerate(validation), total=len(validation)):
-
-
+        inputs = inputs.to(device)
         with torch.no_grad():
             output = model(inputs)
         labels = inputs['label']
