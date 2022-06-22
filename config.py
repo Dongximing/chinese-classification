@@ -17,3 +17,4 @@ def seed_torch(seed = 100):
     torch.backends.cudnn.enabled = False
     np.random.RandomState(seed)
 bert_chinese_base_path = '/home/dongxx/projects/def-parimala/dongxx/chinese/model-parameter/chinese.pt'
+bert_chinese_base_prompt_pat='/home/dongxx/projects/def-parimala/dongxx/chinese/model-parameter/chinese_prompt.pt'
