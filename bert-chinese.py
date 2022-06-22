@@ -78,15 +78,15 @@ def categorical_accuracy(preds, y):
     correct = top_pred.eq(y.view_as(top_pred)).sum()
     acc = correct.float() / y.shape[0]
     return acc,top_pred
-def training(criterion,train,optimizer,model,scheduler,device):
+def training(local_rank,criterion,train,optimizer,model,scheduler,device):
     model.train()
     training_loss = 0
     training_acc = 0
     for i , data in tqdm(enumerate(train),total=len(train)):
         input_ids, attention_mask, token_type_ids, label = data
-        input_ids, attention_mask, token_type_ids, label = input_ids.to(device), attention_mask.to(
-            device), token_type_ids.to(device), torch.LongTensor(label)
-        label = label.to(device)
+        input_ids, attention_mask, token_type_ids, label = input_ids.cuda(local_rank), attention_mask.cuda(local_rank),\
+                                                           token_type_ids.cuda(local_rank), torch.LongTensor(label)
+        label = label.cuda(local_rank)
         optimizer.zero_grad()
         output = model(ids=input_ids,mask=attention_mask,token_type_ids = token_type_ids)
         loss = criterion(output,label)
@@ -157,9 +157,9 @@ def main():
     )
     config.seed_torch()
     n_gpus = 4
-    dist.init_process_group('nccl',rank=n_gpus,world_size=n_gpus)
-    torch.cuda.set_device(4)
-    bert_chinese_model = torch.nn.parallel.DistributedDataParallel(bert_chinese_model.cuda(),device_ids=4)
+    dist.init_process_group('nccl',rank=args.local_rank,world_size=n_gpus)
+    torch.cuda.set_device(args.local_rank)
+    bert_chinese_model = torch.nn.parallel.DistributedDataParallel(bert_chinese_model.cuda(args.local_rank),device_ids=[args.local_rank])
 
 
 
@@ -172,18 +172,21 @@ def main():
 
 
     train_dataset,validation_dataset,test_dataset = data_process(args.train_path,args.valid_path,args.test_path,tokenizer,max_length)
-    train = DataLoader(train_dataset,collate_fn=generate_batch, batch_size=128,shuffle=True)
+    train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
+    train = DataLoader(train_dataset,collate_fn=generate_batch, batch_size=128,sampler=train_sampler)
+
     validation = DataLoader(validation_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False)
     test = DataLoader(test_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False)
     best_loss = float('inf')
     for epoch in range (epochs):
-        train_loss,train_acc = training(lock_rank,criterion,train,optimizer,bert_chinese_model,scheduler,device)
+        train_sampler.set_epoch(epoch=epoch)
+        train_loss,train_acc = training(args.local_rank,criterion,train,optimizer,bert_chinese_model,scheduler,device)
         valid_loss,valid_acc =testing(criterion,validation,bert_chinese_model,device)
         print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {train_acc * 100:.2f}%')
         print(f'\t Val. Loss: {valid_loss:.3f} |  Val. Acc: {valid_acc * 100:.2f}%')
-        if valid_loss< best_loss:
+        if valid_loss< best_loss and args.locl_rank == 0:
             best_loss = valid_loss
-            torch.save(bert_chinese_model.state_dict(),config.bert_chinese_base_path)
+            torch.save(bert_chinese_model.module.state_dict(),config.bert_chinese_base_path)
 
 
 
