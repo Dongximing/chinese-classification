@@ -8,7 +8,7 @@ import os
 import transformers
 from tqdm import tqdm
 from transformers import BertTokenizer,BertModel,AdamW,get_linear_schedule_with_warmup
-
+import torch.distributed as dist
 
 import config
 from utils import bert_chinese_generation
@@ -124,6 +124,7 @@ def main():
     parser.add_argument('--train_path',type=str,default='/home/dongxx/projects/def-parimala/dongxx/chinese/Bert-Chinese-Text-Classification-Pytorch/THUCNews/data/train.txt')
     parser.add_argument('--valid_path',type=str,default='/home/dongxx/projects/def-parimala/dongxx/chinese/Bert-Chinese-Text-Classification-Pytorch/THUCNews/data/dev.txt')
     parser.add_argument('--test_path',type=str,default='/home/dongxx/projects/def-parimala/dongxx/chinese/Bert-Chinese-Text-Classification-Pytorch/THUCNews/data/test.txt')
+    parser.add_argument('--local_rank',type=int)
     args = parser.parse_args()
     tokenizer = BertTokenizer.from_pretrained('bert-base-chinese')
     max_length = 32
@@ -132,7 +133,7 @@ def main():
     bert_chinese = BertModel.from_pretrained('bert-base-chinese')
     criterion = nn.CrossEntropyLoss()
     bert_chinese_model = Bert_base(bert=bert_chinese,hidden_state=768,num_class=10)
-    bert_chinese_model.to(device)
+
     param_optimizer = list(bert_chinese_model.named_parameters())
     no_decay = ["bias", "LayerNorm.bias", "LayerNorm.weight"]
     optimizer_parameters = [
@@ -155,6 +156,12 @@ def main():
         optimizer, num_warmup_steps=0, num_training_steps=int(180000/128*10)
     )
     config.seed_torch()
+    n_gpus = 4
+    dist.init_process_group('nccl',rank=n_gpus,world_size=n_gpus)
+    torch.cuda.set_device(4)
+    bert_chinese_model = torch.nn.parallel.DistributedDataParallel(bert_chinese_model.cuda(),device_ids=4)
+
+
 
 
 
@@ -170,7 +177,7 @@ def main():
     test = DataLoader(test_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False)
     best_loss = float('inf')
     for epoch in range (epochs):
-        train_loss,train_acc = training(criterion,train,optimizer,bert_chinese_model,scheduler,device)
+        train_loss,train_acc = training(lock_rank,criterion,train,optimizer,bert_chinese_model,scheduler,device)
         valid_loss,valid_acc =testing(criterion,validation,bert_chinese_model,device)
         print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {train_acc * 100:.2f}%')
         print(f'\t Val. Loss: {valid_loss:.3f} |  Val. Acc: {valid_acc * 100:.2f}%')

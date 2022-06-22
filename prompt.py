@@ -67,7 +67,7 @@ def training(criterion,train,optimizer,model,scheduler,device):
     for i , inputs in tqdm(enumerate(train),total=len(train)):
 
         inputs = inputs.to(device)
-        optimizer.zero_grad()
+
         output = model(inputs)
         labels = inputs['label']
         loss = criterion(output,labels)
@@ -77,6 +77,7 @@ def training(criterion,train,optimizer,model,scheduler,device):
         training_loss+=loss.item()
         loss.backward()
         optimizer.step()
+        optimizer.zero_grad()
         scheduler.step()
     return training_loss/len(train), training_acc/len(train)
 def testing(validation,device,criterion,model):
@@ -123,7 +124,7 @@ def main():
         {'params': [p for n, p in prompt_model.named_parameters() if any(nd in n for nd in no_decay)],
          'weight_decay': 0.0}
     ]
-    epochs = 10
+    epochs = 5
     batch_size = 128
     training_dataset = PromptDataLoader(dataset=train_dataset,max_seq_length=64,batch_size=batch_size,shuffle=True,tokenizer_wrapper_class=Wrapperclass,tokenizer=tokenizer,template=promptTemplate)
     validing_dataset = PromptDataLoader(dataset=validation_dataset,max_seq_length=64,batch_size=batch_size,shuffle=False,tokenizer_wrapper_class=Wrapperclass,tokenizer=tokenizer,template=promptTemplate)
