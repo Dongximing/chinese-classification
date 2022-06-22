@@ -153,7 +153,7 @@ def main():
 
     optimizer = AdamW(optimizer_parameters, lr=3e-5)
     scheduler = get_linear_schedule_with_warmup(
-        optimizer, num_warmup_steps=0, num_training_steps=int(180000/128*10)
+        optimizer, num_warmup_steps=0, num_training_steps=int(180000/32*10)
     )
     config.seed_torch()
     n_gpus = 4
@@ -173,10 +173,10 @@ def main():
 
     train_dataset,validation_dataset,test_dataset = data_process(args.train_path,args.valid_path,args.test_path,tokenizer,max_length)
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
-    train = DataLoader(train_dataset,collate_fn=generate_batch, batch_size=128,sampler=train_sampler)
+    train = DataLoader(train_dataset,collate_fn=generate_batch, batch_size=32,sampler=train_sampler)
 
-    validation = DataLoader(validation_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False)
-    test = DataLoader(test_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False)
+    validation = DataLoader(validation_dataset,collate_fn=generate_batch,batch_size=32,shuffle=False)
+    test = DataLoader(test_dataset,collate_fn=generate_batch,batch_size=32,shuffle=False)
     best_loss = float('inf')
     for epoch in range (epochs):
         train_sampler.set_epoch(epoch=epoch)
@@ -191,7 +191,7 @@ def main():
 
 
     print("testing")
-    bert_chinese_model.load_state_dict(torch.load(config.bert_chinese_base_path))
+    bert_chinese_model.load_state_dict(torch.load(config.bert_chinese_base_path,map_location=torch.device(args.local_rank)))
     test_loss, test_acc = testing(criterion, test, bert_chinese_model, device)
     print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc * 100:.2f}%')
     print("testing done")
