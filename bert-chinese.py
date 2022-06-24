@@ -37,8 +37,7 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
         example, label = line.split("\t")
         training_example.append(example)
         training_label.append(int(label))
-        if i ==2:
-            break
+
 
     with open(validation_data_path) as f1:
         validation_lines = f1.readlines()
@@ -47,8 +46,7 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
         example, label = line.split("\t")
         validation_example.append(example)
         validation_label.append(int(label))
-        if i == 2:
-            break
+
 
     with open(test_data_path) as f2:
         test_lines = f2.readlines()
@@ -59,8 +57,7 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
         example, label = line.split("\t")
         testing_example.append(example)
         testing_label.append(int(label))
-        if i == 2:
-            break
+
 
 
     return bert_chinese_generation(training_example,training_label,validation_example,validation_label,testing_example,testing_label,tokenizer,max_length)
@@ -160,7 +157,7 @@ def main():
 
     optimizer = AdamW(optimizer_parameters, lr=3e-5)
     scheduler = get_linear_schedule_with_warmup(
-        optimizer, num_warmup_steps=0, num_training_steps=int(180000/32*10)
+        optimizer, num_warmup_steps=0, num_training_steps=int(180000/128*10)
     )
     config.seed_torch()
     n_gpus = 4
@@ -192,8 +189,7 @@ def main():
         print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {train_acc * 100:.2f}%')
         print(f'\t Val. Loss: {valid_loss:.3f} |  Val. Acc: {valid_acc * 100:.2f}%')
         if valid_loss< best_loss and  dist.get_rank()==0:
-                print('process')
-                print(dist.get_rank())
+
                 best_loss = valid_loss
                 torch.save(bert_chinese_model_parallel.module.state_dict(),config.bert_chinese_base_path)
         else:
@@ -202,7 +198,7 @@ def main():
 
 
     print("testing")
-    bert_chinese_model.load_state_dict(torch.load(config.bert_chinese_base_path,map_location=torch.device(0)))
+    bert_chinese_model.load_state_dict(torch.load(config.bert_chinese_base_path,map_location=torch.device(dist.get_rank())))
     test_loss, test_acc = testing(criterion, test, bert_chinese_model, device)
     print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc * 100:.2f}%')
     print("testing done")
