@@ -166,7 +166,7 @@ def main():
         optimizer, num_warmup_steps=0, num_training_steps=int(180000/128*10)
     )
     config.seed_torch()
-    n_gpus = 4
+    n_gpus = 2
     dist.init_process_group('nccl',rank=args.local_rank,world_size=n_gpus)
     torch.cuda.set_device(args.local_rank)
     bert_chinese_model_parallel = torch.nn.parallel.DistributedDataParallel(bert_chinese_model.cuda(args.local_rank),device_ids=[args.local_rank])
