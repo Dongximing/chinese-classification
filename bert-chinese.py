@@ -31,30 +31,36 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
 
         train_lines = f.readlines()
 
-    for line in train_lines:
+    for i, line in enumerate(train_lines):
 
 
         example, label = line.split("\t")
         training_example.append(example)
         training_label.append(int(label))
+        if i ==2:
+            break
 
     with open(validation_data_path) as f1:
         validation_lines = f1.readlines()
 
-    for line in validation_lines:
+    for i, line in enumerate(validation_lines):
         example, label = line.split("\t")
         validation_example.append(example)
         validation_label.append(int(label))
+        if i == 2:
+            break
 
     with open(test_data_path) as f2:
         test_lines = f2.readlines()
 
 
-    for line in test_lines:
+    for i, line in enumerate(test_lines):
 
         example, label = line.split("\t")
         testing_example.append(example)
         testing_label.append(int(label))
+        if i == 2:
+            break
 
 
     return bert_chinese_generation(training_example,training_label,validation_example,validation_label,testing_example,testing_label,tokenizer,max_length)
@@ -185,10 +191,12 @@ def main():
         valid_loss,valid_acc =testing(criterion,validation,bert_chinese_model,device)
         print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {train_acc * 100:.2f}%')
         print(f'\t Val. Loss: {valid_loss:.3f} |  Val. Acc: {valid_acc * 100:.2f}%')
-        if valid_loss< best_loss :
-            print(args.local_rank)
+        if valid_loss< best_loss and args.local_rank == 0:
+
             best_loss = valid_loss
             torch.save(bert_chinese_model.module.state_dict(),config.bert_chinese_base_path)
+        else:
+            print("ggg")
 
 
 
