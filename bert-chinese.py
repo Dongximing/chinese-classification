@@ -191,10 +191,14 @@ def main():
         valid_loss,valid_acc =testing(criterion,validation,bert_chinese_model,device)
         print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {train_acc * 100:.2f}%')
         print(f'\t Val. Loss: {valid_loss:.3f} |  Val. Acc: {valid_acc * 100:.2f}%')
-        if valid_loss< best_loss and args.local_rank == 0:
+        if valid_loss< best_loss:
+            print(type(args.local_rank))
 
-            best_loss = valid_loss
-            torch.save(bert_chinese_model.module.state_dict(),config.bert_chinese_base_path)
+            if args.local_rank == 0:
+                print(args.local_rank)
+
+                best_loss = valid_loss
+                torch.save(bert_chinese_model.module.state_dict(),config.bert_chinese_base_path)
         else:
             print("ggg")
 
