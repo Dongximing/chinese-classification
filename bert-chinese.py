@@ -191,11 +191,8 @@ def main():
         valid_loss,valid_acc =testing(criterion,validation,bert_chinese_model,device)
         print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {train_acc * 100:.2f}%')
         print(f'\t Val. Loss: {valid_loss:.3f} |  Val. Acc: {valid_acc * 100:.2f}%')
-        if valid_loss< best_loss:
-            print(type(args.local_rank))
+        if valid_loss< best_loss and  dist.get_rank()==0:
 
-            if args.local_rank == 0:
-                print(args.local_rank)
 
                 best_loss = valid_loss
                 torch.save(bert_chinese_model.module.state_dict(),config.bert_chinese_base_path)
@@ -205,7 +202,7 @@ def main():
 
 
     print("testing")
-    bert_chinese_model.load_state_dict(torch.load(config.bert_chinese_base_path,map_location=torch.device(args.local_rank)))
+    bert_chinese_model.load_state_dict(torch.load(config.bert_chinese_base_path,map_location=torch.device(0)))
     test_loss, test_acc = testing(criterion, test, bert_chinese_model, device)
     print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc * 100:.2f}%')
     print("testing done")
