@@ -166,7 +166,7 @@ def main():
     n_gpus = 4
     dist.init_process_group('nccl',rank=args.local_rank,world_size=n_gpus)
     torch.cuda.set_device(args.local_rank)
-    bert_chinese_model = torch.nn.parallel.DistributedDataParallel(bert_chinese_model.cuda(args.local_rank),device_ids=[args.local_rank])
+    bert_chinese_model_parallel = torch.nn.parallel.DistributedDataParallel(bert_chinese_model.cuda(args.local_rank),device_ids=[args.local_rank])
 
 
 
@@ -187,8 +187,8 @@ def main():
     best_loss = float('inf')
     for epoch in range (epochs):
         train_sampler.set_epoch(epoch=epoch)
-        train_loss,train_acc = training(args.local_rank,criterion,train,optimizer,bert_chinese_model,scheduler,device)
-        valid_loss,valid_acc =testing(criterion,validation,bert_chinese_model,device)
+        train_loss,train_acc = training(args.local_rank,criterion,train,optimizer,bert_chinese_model_parallel,scheduler,device)
+        valid_loss,valid_acc =testing(criterion,validation,bert_chinese_model_parallel,device)
         print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {train_acc * 100:.2f}%')
         print(f'\t Val. Loss: {valid_loss:.3f} |  Val. Acc: {valid_acc * 100:.2f}%')
         if valid_loss< best_loss and  dist.get_rank()==0:
@@ -202,7 +202,7 @@ def main():
 
 
     print("testing")
-    bert_chinese_model.load_state_dict(torch.load(config.bert_chinese_base_path,map_location=torch.device(dist.get_rank())))
+    bert_chinese_model.load_state_dict(torch.load(config.bert_chinese_base_path,map_location=torch.device(0)))
     test_loss, test_acc = testing(criterion, test, bert_chinese_model, device)
     print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc * 100:.2f}%')
     print("testing done")
