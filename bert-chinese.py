@@ -195,7 +195,7 @@ def main():
                 print('process')
                 print(dist.get_rank())
                 best_loss = valid_loss
-                torch.save(bert_chinese_model.module.state_dict(),config.bert_chinese_base_path)
+                torch.save(bert_chinese_model_parallel.module.state_dict(),config.bert_chinese_base_path)
         else:
             print("ggg")
 
