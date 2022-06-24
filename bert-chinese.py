@@ -205,7 +205,7 @@ def main():
 
 
     print("testing")
-    bert_chinese_model_parallel.load_state_dict(torch.load(config.bert_chinese_base_path))
+    bert_chinese_model_parallel.load_state_dict(torch.load(config.bert_chinese_base_path,map_location=dist.get_rank()))
     test_loss, test_acc = testing(criterion, test, bert_chinese_model_parallel, device)
     print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc * 100:.2f}%')
     print("testing done")
