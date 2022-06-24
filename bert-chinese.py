@@ -191,13 +191,14 @@ def main():
     for epoch in range (epochs):
         train_sampler.set_epoch(epoch=epoch)
         train_loss,train_acc = training(args.local_rank,criterion,train,optimizer,bert_chinese_model_parallel,scheduler,device)
+
         valid_loss,valid_acc =testing(criterion,validation,bert_chinese_model_parallel,device)
         print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {train_acc * 100:.2f}%')
         print(f'\t Val. Loss: {valid_loss:.3f} |  Val. Acc: {valid_acc * 100:.2f}%')
-        if valid_loss< best_loss and  dist.get_rank()==0:
-
+        if valid_loss< best_loss:
                 best_loss = valid_loss
-                torch.save(bert_chinese_model_parallel.module.state_dict(),config.bert_chinese_base_path)
+                if dist.get_rank() == 0:
+                    torch.save(bert_chinese_model_parallel.module.state_dict(),config.bert_chinese_base_path)
         else:
             print("ggg")
 
@@ -205,7 +206,7 @@ def main():
 
     print("testing")
     bert_chinese_model_parallel.load_state_dict(torch.load(config.bert_chinese_base_path))
-    test_loss, test_acc = testing(criterion, test, bert_chinese_model, device)
+    test_loss, test_acc = testing(criterion, test, bert_chinese_model_parallel, device)
     print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc * 100:.2f}%')
     print("testing done")
 
