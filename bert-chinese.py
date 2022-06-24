@@ -174,10 +174,10 @@ def main():
 
     train_dataset,validation_dataset,test_dataset = data_process(args.train_path,args.valid_path,args.test_path,tokenizer,max_length)
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
-    train = DataLoader(train_dataset,collate_fn=generate_batch, batch_size=32,sampler=train_sampler)
+    train = DataLoader(train_dataset,collate_fn=generate_batch, batch_size=128,sampler=train_sampler)
 
-    validation = DataLoader(validation_dataset,collate_fn=generate_batch,batch_size=32,shuffle=False)
-    test = DataLoader(test_dataset,collate_fn=generate_batch,batch_size=32,shuffle=False)
+    validation = DataLoader(validation_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False)
+    test = DataLoader(test_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False)
     best_loss = float('inf')
     for epoch in range (epochs):
         train_sampler.set_epoch(epoch=epoch)
