@@ -199,6 +199,7 @@ def main():
             print("ggg")
 
     print("testing")
+    print(f'cuda:{args.local_rank}')
 
     bert_chinese_model.load_state_dict(
         torch.load(config.bert_chinese_base_path, map_location=f'cuda:{args.local_rank}'))
