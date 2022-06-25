@@ -146,9 +146,9 @@ def main():
 
         if valid_loss < best_loss:
             best_loss = valid_loss
-            torch.save(prompt_model.state_dict(), config.bert_chinese_base_path)
+            torch.save(prompt_model.state_dict(), config.bert_chinese_base_prompt_path)
     print("testing")
-    prompt_model.load_state_dict(torch.load(config.bert_chinese_base_path))
+    prompt_model.load_state_dict(torch.load(config.bert_chinese_base_prompt_path))
     test_loss, test_acc = testing(validation=testing_dataset, criterion=loss_function , model= prompt_model,device =device)
     print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc * 100:.2f}%')
     print("testing done")
