@@ -193,7 +193,7 @@ def main():
         train_sampler.set_epoch(epoch=epoch)
         train_loss,train_acc = training(args.local_rank,criterion,train,optimizer,bert_chinese_model_parallel,scheduler,device)
 
-        valid_loss,valid_acc =testing((args.local_rank,criterion,validation,bert_chinese_model_parallel,device)
+        valid_loss,valid_acc =testing(args.local_rank,criterion,validation,bert_chinese_model_parallel,device)
         print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {train_acc * 100:.2f}%')
         print(f'\t Val. Loss: {valid_loss:.3f} |  Val. Acc: {valid_acc * 100:.2f}%')
         if valid_loss< best_loss:
@@ -211,7 +211,7 @@ def main():
     bert_chinese_model_parallel = torch.nn.parallel.DistributedDataParallel(bert_chinese_model.cuda(args.local_rank),
                                                                             device_ids=[args.local_rank])
 
-    test_loss, test_acc = testing((args.local_rank,criterion, test, bert_chinese_model_parallel, device)
+    test_loss, test_acc = testing(args.local_rank,criterion, test, bert_chinese_model_parallel, device)
     print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc * 100:.2f}%')
     print("testing done")
 
