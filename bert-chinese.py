@@ -35,8 +35,7 @@ def data_process(train_data_path, validation_data_path, test_data_path, tokenize
         example, label = line.split("\t")
         training_example.append(example)
         training_label.append(int(label))
-        if i >2:
-            break
+
 
 
     with open(validation_data_path) as f1:
@@ -46,8 +45,7 @@ def data_process(train_data_path, validation_data_path, test_data_path, tokenize
         example, label = line.split("\t")
         validation_example.append(example)
         validation_label.append(int(label))
-        if i > 2:
-            break
+
 
 
     with open(test_data_path) as f2:
@@ -57,9 +55,7 @@ def data_process(train_data_path, validation_data_path, test_data_path, tokenize
 
         example, label = line.split("\t")
         testing_example.append(example)
-        testing_label.append(int(label))
-        if i > 2:
-            break
+
 
 
     return bert_chinese_generation(training_example, training_label, validation_example, validation_label,
