@@ -107,14 +107,15 @@ def training(local_rank,criterion,train,optimizer,model,scheduler,device):
         optimizer.step()
         scheduler.step()
     return training_loss/len(train), training_acc/len(train)
-def testing(local_rank,criterion,validation,model,device):
+def testing(criterion,validation,model,device):
     model.eval()
     testing_loss = 0
     testing_acc = 0
     for i , data in tqdm(enumerate(validation),total=len(validation)):
         input_ids, attention_mask, token_type_ids, label = data
-        input_ids, attention_mask, token_type_ids, label = input_ids.cuda(local_rank), attention_mask.cuda(local_rank), token_type_ids.cuda(local_rank), torch.LongTensor(label)
-        label = label.cuda(local_rank)
+        input_ids, attention_mask, token_type_ids, label = input_ids.to(device), attention_mask.to(
+            device), token_type_ids.to(device), torch.LongTensor(label)
+        label = label.to(device)
 
 
         with torch.no_grad():
@@ -186,14 +187,14 @@ def main():
     test_sampler = torch.utils.data.distributed.DistributedSampler(test_dataset)
     train = DataLoader(train_dataset,collate_fn=generate_batch, batch_size=128,sampler=train_sampler)
 
-    validation = DataLoader(validation_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False,sampler=validation_sampler)
-    test = DataLoader(test_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False,sampler=test_sampler)
+    validation = DataLoader(validation_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False)
+    test = DataLoader(test_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False)
     best_loss = float('inf')
     for epoch in range (epochs):
         train_sampler.set_epoch(epoch=epoch)
         train_loss,train_acc = training(args.local_rank,criterion,train,optimizer,bert_chinese_model_parallel,scheduler,device)
 
-        valid_loss,valid_acc =testing(args.local_rank,criterion,validation,bert_chinese_model_parallel,device)
+        valid_loss,valid_acc =testing(criterion,validation,bert_chinese_model_parallel,device)
         print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {train_acc * 100:.2f}%')
         print(f'\t Val. Loss: {valid_loss:.3f} |  Val. Acc: {valid_acc * 100:.2f}%')
         if valid_loss< best_loss:
@@ -211,7 +212,7 @@ def main():
     bert_chinese_model_parallel = torch.nn.parallel.DistributedDataParallel(bert_chinese_model.cuda(args.local_rank),
                                                                             device_ids=[args.local_rank])
 
-    test_loss, test_acc = testing(args.local_rank,criterion, test, bert_chinese_model_parallel, device)
+    test_loss, test_acc = testing(criterion, test, bert_chinese_model_parallel, device)
     print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc * 100:.2f}%')
     print("testing done")
 
