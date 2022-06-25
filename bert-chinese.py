@@ -206,7 +206,7 @@ def main():
 
     print("testing")
 
-    bert_chinese_model.load_state_dict(torch.load(config.bert_chinese_base_path,map_location=dist.get_rank()))
+    bert_chinese_model.load_state_dict(torch.load(config.bert_chinese_base_path,map_location=f'cuda:{args.local_rank}'))
     dist.init_process_group('nccl', rank=args.local_rank, world_size=n_gpus)
     torch.cuda.set_device(args.local_rank)
     bert_chinese_model_parallel = torch.nn.parallel.DistributedDataParallel(bert_chinese_model.cuda(args.local_rank),
