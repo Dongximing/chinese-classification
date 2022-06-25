@@ -1,5 +1,3 @@
-
-
 import argparse
 import os
 import torch
@@ -37,8 +35,7 @@ def data_process(train_data_path, validation_data_path, test_data_path, tokenize
         example, label = line.split("\t")
         training_example.append(example)
         training_label.append(int(label))
-        if i > 200:
-            break
+
 
     with open(validation_data_path) as f1:
         validation_lines = f1.readlines()
@@ -47,8 +44,7 @@ def data_process(train_data_path, validation_data_path, test_data_path, tokenize
         example, label = line.split("\t")
         validation_example.append(example)
         validation_label.append(int(label))
-        if i > 200:
-            break
+
 
     with open(test_data_path) as f2:
         test_lines = f2.readlines()
@@ -58,8 +54,7 @@ def data_process(train_data_path, validation_data_path, test_data_path, tokenize
         example, label = line.split("\t")
         testing_example.append(example)
         testing_label.append(int(label))
-        if i > 200:
-            break
+
 
     return bert_chinese_generation(training_example, training_label, validation_example, validation_label,
                                    testing_example, testing_label, tokenizer, max_length)
@@ -107,14 +102,15 @@ def training(local_rank, criterion, train, optimizer, model, scheduler, device):
     return training_loss / len(train), training_acc / len(train)
 
 
-def testing(local_rank,criterion, validation, model, device):
+def testing(criterion, validation, model, device):
     model.eval()
     testing_loss = 0
     testing_acc = 0
     for i, data in tqdm(enumerate(validation), total=len(validation)):
         input_ids, attention_mask, token_type_ids, label = data
-        input_ids, attention_mask, token_type_ids, label = input_ids.cuda(local_rank), attention_mask.cuda(local_rank), token_type_ids.cuda(local_rank), torch.LongTensor(label)
-        label = label.cuda(local_rank)
+        input_ids, attention_mask, token_type_ids, label = input_ids.to(device), attention_mask.to(
+            device), token_type_ids.to(device), torch.LongTensor(label)
+        label = label.to(device)
 
         with torch.no_grad():
             output = model(ids=input_ids, mask=attention_mask, token_type_ids=token_type_ids)
@@ -176,19 +172,17 @@ def main():
     train_dataset, validation_dataset, test_dataset = data_process(args.train_path, args.valid_path, args.test_path,
                                                                    tokenizer, max_length)
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
-    validation_sampler = torch.utils.data.distributed.DistributedSampler(validation_dataset)
-    test_sampler =  torch.utils.data.distributed.DistributedSampler(test_dataset)
     train = DataLoader(train_dataset, collate_fn=generate_batch, batch_size=128, sampler=train_sampler)
 
-    validation = DataLoader(validation_dataset, collate_fn=generate_batch, batch_size=128, shuffle=False,sampler=validation_sampler)
-    test = DataLoader(test_dataset, collate_fn=generate_batch, batch_size=128, shuffle=False,sampler=test_sampler)
+    validation = DataLoader(validation_dataset, collate_fn=generate_batch, batch_size=128, shuffle=False)
+    test = DataLoader(test_dataset, collate_fn=generate_batch, batch_size=128, shuffle=False)
     best_loss = float('inf')
     for epoch in range(epochs):
         train_sampler.set_epoch(epoch=epoch)
         train_loss, train_acc = training(args.local_rank, criterion, train, optimizer, bert_chinese_model_parallel,
                                          scheduler, device)
 
-        valid_loss, valid_acc = testing(args.local_rank,criterion, validation, bert_chinese_model_parallel, device)
+        valid_loss, valid_acc = testing(criterion, validation, bert_chinese_model_parallel, device)
         print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {train_acc * 100:.2f}%')
         print(f'\t Val. Loss: {valid_loss:.3f} |  Val. Acc: {valid_acc * 100:.2f}%')
         if valid_loss < best_loss:
@@ -199,14 +193,12 @@ def main():
             print("ggg")
 
     print("testing")
-    print(f'cuda:{args.local_rank}')
 
-    bert_chinese_model_parallel.load_state_dict(
-        torch.load(config.bert_chinese_base_path, map_location=torch.device("cpu")))
-    bert_chinese_model_parallel = torch.nn.parallel.DistributedDataParallel(bert_chinese_model.cuda(args.local_rank),
-                                                                            device_ids=[args.local_rank])
+    bert_chinese_model.load_state_dict(
+        torch.load(config.bert_chinese_base_path))
 
-    test_loss, test_acc = testing(args.local_rank,criterion, test, bert_chinese_model_parallel, device)
+
+    test_loss, test_acc = testing(criterion, test, bert_chinese_model, device)
     print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc * 100:.2f}%')
     print("testing done")
 
