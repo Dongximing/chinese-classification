@@ -37,7 +37,7 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
         example, label = line.split("\t")
         training_example.append(example)
         training_label.append(int(label))
-        if i>2:
+        if i>200:
             break
 
 
@@ -48,7 +48,7 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
         example, label = line.split("\t")
         validation_example.append(example)
         validation_label.append(int(label))
-        if i>2:
+        if i>200:
             break
 
 
@@ -61,7 +61,7 @@ def data_process(train_data_path, validation_data_path,test_data_path,tokenizer,
         example, label = line.split("\t")
         testing_example.append(example)
         testing_label.append(int(label))
-        if i>2:
+        if i>200:
             break
 
 
@@ -107,15 +107,14 @@ def training(local_rank,criterion,train,optimizer,model,scheduler,device):
         optimizer.step()
         scheduler.step()
     return training_loss/len(train), training_acc/len(train)
-def testing(criterion,validation,model,device):
+def testing(local_rank,criterion,validation,model,device):
     model.eval()
     testing_loss = 0
     testing_acc = 0
     for i , data in tqdm(enumerate(validation),total=len(validation)):
         input_ids, attention_mask, token_type_ids, label = data
-        input_ids, attention_mask, token_type_ids, label = input_ids.to(device), attention_mask.to(
-            device), token_type_ids.to(device), torch.LongTensor(label)
-        label = label.to(device)
+        input_ids, attention_mask, token_type_ids, label = input_ids.cuda(local_rank), attention_mask.cuda(local_rank), token_type_ids.cuda(local_rank), torch.LongTensor(label)
+        label = label.cuda(local_rank)
 
 
         with torch.no_grad():
@@ -183,10 +182,12 @@ def main():
 
     train_dataset,validation_dataset,test_dataset = data_process(args.train_path,args.valid_path,args.test_path,tokenizer,max_length)
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
+    validation_sampler = torch.utils.data.distributed.DistributedSampler(validation_dataset)
+    test_sampler = torch.utils.data.distributed.DistributedSampler(test_dataset)
     train = DataLoader(train_dataset,collate_fn=generate_batch, batch_size=128,sampler=train_sampler)
 
-    validation = DataLoader(validation_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False)
-    test = DataLoader(test_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False)
+    validation = DataLoader(validation_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False,sampler=validation_sampler)
+    test = DataLoader(test_dataset,collate_fn=generate_batch,batch_size=128,shuffle=False,sampler=test_sampler)
     best_loss = float('inf')
     for epoch in range (epochs):
         train_sampler.set_epoch(epoch=epoch)
