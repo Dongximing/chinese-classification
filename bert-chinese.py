@@ -55,6 +55,7 @@ def data_process(train_data_path, validation_data_path, test_data_path, tokenize
 
         example, label = line.split("\t")
         testing_example.append(example)
+        testing_label.append(label)
 
 
 
@@ -196,10 +197,7 @@ def main():
 
     print("testing")
 
-    bert_chinese_model.load_state_dict(
-        torch.load(config.bert_chinese_base_path))
-
-
+    bert_chinese_model.load_state_dict(torch.load(config.bert_chinese_base_path))
     test_loss, test_acc = testing(criterion, test, bert_chinese_model, device)
     print(f'Test Loss: {test_loss:.3f} | Test Acc: {test_acc * 100:.2f}%')
     print("testing done")
