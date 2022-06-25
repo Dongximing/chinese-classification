@@ -113,7 +113,7 @@ def main():
     label_words = {'财经':'金融','房产':'房地产','股票':'证劵','教育':'培训','科技':'科学技术','社会':'当今社会','时政':'政治','体育':'运动','游戏':'电子竞技','娱乐':'八卦'}
     train_dataset, validation_dataset, test_dataset = data_process(train_data_path=args.train_path,validation_data_path=args.valid_path,test_data_path=args.test_path,res=res)
     plm, tokenizer, model_config, Wrapperclass = load_plm('bert','bert-base-chinese')
-    promptTemplate = ManualTemplate(text='"placeholder":"text_a"} 它是 {"mask"} 新闻',tokenizer=tokenizer)
+    promptTemplate = ManualTemplate(text='{"placeholder":"text_a"} 它是 {"mask"} 新闻',tokenizer=tokenizer)
     promptVerbalizar = ManualVerbalizer(classes=classes,label_words=label_words,tokenizer=tokenizer)
     prompt_model = PromptForClassification(template=promptTemplate,plm=plm,verbalizer=promptVerbalizar)
     no_decay = ['bias', 'LayerNorm.weight']
