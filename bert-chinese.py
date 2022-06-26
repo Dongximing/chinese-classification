@@ -55,7 +55,7 @@ def data_process(train_data_path, validation_data_path, test_data_path, tokenize
 
         example, label = line.split("\t")
         testing_example.append(example)
-        testing_label.append(label)
+        testing_label.append(int(label))
 
 
 
